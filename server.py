@@ -1,16 +1,16 @@
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from itertools import count
 
 from mcp.server import MCPServer
 
 
-# 1. Create the MCP server
+# Create the MCP server
 mcp = MCPServer("Task Manager")
 
 
-# 2. Define the structure of a task
+# Define the structure of a task
 @dataclass
 class Task:
     id: int
@@ -19,12 +19,12 @@ class Task:
     created_at: str
 
 
-# 3. Store tasks in memory
+# In-memory task storage
 tasks: list[Task] = []
 task_id_counter = count(1)
 
 
-# 4. Register our first MCP tool
+# Tool 1: Create a task
 @mcp.tool()
 def create_task(title: str) -> dict:
     """Create a new task using the supplied title."""
@@ -44,10 +44,39 @@ def create_task(title: str) -> dict:
     return {
         "success": True,
         "message": "Task created successfully.",
-        "task": {
-            "id": task.id,
-            "title": task.title,
-            "completed": task.completed,
-            "created_at": task.created_at,
-        },
+        "task": asdict(task),
     }
+
+
+# Tool 2: List all tasks
+@mcp.tool()
+def list_tasks() -> list[dict]:
+    """Retrieve all tasks stored in the task manager."""
+
+    return [asdict(task) for task in tasks]
+
+
+# Tool 3: Complete a task
+@mcp.tool()
+def complete_task(task_id: int) -> dict:
+    """Mark a task as completed using its ID."""
+
+    for task in tasks:
+        if task.id == task_id:
+            if task.completed:
+                return {
+                    "success": True,
+                    "message": "Task is already completed.",
+                    "task": asdict(task),
+                }
+
+            task.completed = True
+
+            return {
+                "success": True,
+                "message": "Task completed successfully.",
+                "task": asdict(task),
+            }
+
+    raise ValueError(f"Task with ID {task_id} was not found.")
+
