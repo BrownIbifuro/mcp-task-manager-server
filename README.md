@@ -107,7 +107,7 @@ The server exposes three tools.
 | `list_tasks` | Retrieves all stored tasks. |
 | `complete_task` | Marks a task as completed using its ID. |
 
-For detailed input parameters, responses, and error behaviour, see the tool reference documentation.
+For detailed input parameters, responses, and error behaviour, see the [Tool Reference](docs/tools-reference.md).
 
 ## Running the Tests
 
